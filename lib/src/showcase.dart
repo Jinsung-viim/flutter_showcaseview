@@ -348,6 +348,7 @@ class Showcase extends StatefulWidget {
     this.onBarrierClick,
     this.disableBarrierInteraction = false,
     this.toolTipSlideEndDistance = 7,
+    this.toolTipMargin = 14,
     this.tooltipOffset = Offset.zero,
   })  : showArrow = false,
         onToolTipClick = null,
