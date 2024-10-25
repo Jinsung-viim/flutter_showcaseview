@@ -370,7 +370,7 @@ class Showcase extends StatefulWidget {
         descriptionPadding = null,
         titleTextDirection = null,
         descriptionTextDirection = null,
-        toolTipMargin = 14,
+        // toolTipMargin = 14,
         assert(overlayOpacity >= 0.0 && overlayOpacity <= 1.0,
             "overlay opacity must be between 0 and 1."),
         assert(onBarrierClick == null || disableBarrierInteraction == false,
