@@ -133,10 +133,12 @@ class _ToolTipWidgetState extends State<ToolTipWidget>
     // TODO: need to update for flutter version > 3.8.X
     // ignore: deprecated_member_use
     final EdgeInsets viewInsets = EdgeInsets.fromWindowPadding(
+      // ambiguate(WidgetsBinding.instance)?.window.viewInsets ?? ViewPadding.zero,
+      // ambiguate(WidgetsBinding.instance)?.window.devicePixelRatio ?? 1,
       // ignore: deprecated_member_use
-      ambiguate(WidgetsBinding.instance)?.window.viewInsets ?? ViewPadding.zero,
+      WidgetsBinding.instance.window.viewInsets,
       // ignore: deprecated_member_use
-      ambiguate(WidgetsBinding.instance)?.window.devicePixelRatio ?? 1,
+      WidgetsBinding.instance.window.devicePixelRatio,
     );
     final double actualVisibleScreenHeight =
         widget.screenSize.height - viewInsets.bottom;
