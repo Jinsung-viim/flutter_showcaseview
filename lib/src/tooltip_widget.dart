@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2021 Simform Solutions
  *
@@ -22,17 +21,13 @@
  */
 
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
 import 'enum.dart';
-import 'extension.dart';
 import 'get_position.dart';
 import 'measure_size.dart';
 import 'widget/tooltip_slide_transition.dart';
-
-const _kDefaultPaddingFromParent = 14.0;
 
 class ToolTipWidget extends StatefulWidget {
   final GetPosition? position;
@@ -66,10 +61,11 @@ class ToolTipWidget extends StatefulWidget {
   final TextDirection? titleTextDirection;
   final TextDirection? descriptionTextDirection;
   final double toolTipSlideEndDistance;
+  final double toolTipMargin;
   final Offset tooltipOffset;
 
   const ToolTipWidget({
-    Key? key,
+    super.key,
     required this.position,
     required this.offset,
     required this.screenSize,
@@ -93,7 +89,7 @@ class ToolTipWidget extends StatefulWidget {
     required this.tooltipBorderRadius,
     required this.scaleAnimationDuration,
     required this.scaleAnimationCurve,
-    required this.tooltipOffset,
+    required this.toolTipMargin,
     this.scaleAnimationAlignment,
     this.isTooltipDismissed = false,
     this.tooltipPosition,
@@ -102,7 +98,7 @@ class ToolTipWidget extends StatefulWidget {
     this.titleTextDirection,
     this.descriptionTextDirection,
     this.toolTipSlideEndDistance = 7,
-  }) : super(key: key);
+  });
 
   @override
   State<ToolTipWidget> createState() => _ToolTipWidgetState();
@@ -133,8 +129,6 @@ class _ToolTipWidgetState extends State<ToolTipWidget>
     // TODO: need to update for flutter version > 3.8.X
     // ignore: deprecated_member_use
     final EdgeInsets viewInsets = EdgeInsets.fromWindowPadding(
-      // ambiguate(WidgetsBinding.instance)?.window.viewInsets ?? ViewPadding.zero,
-      // ambiguate(WidgetsBinding.instance)?.window.devicePixelRatio ?? 1,
       // ignore: deprecated_member_use
       WidgetsBinding.instance.window.viewInsets,
       // ignore: deprecated_member_use
@@ -190,10 +184,10 @@ class _ToolTipWidgetState extends State<ToolTipWidget>
       double leftPositionValue = widget.position!.getCenter() - (width * 0.5);
       if ((leftPositionValue + width) > widget.screenSize.width) {
         return null;
-      } else if ((leftPositionValue) < _kDefaultPaddingFromParent) {
-        return _kDefaultPaddingFromParent + widget.tooltipOffset.dx;
+      } else if ((leftPositionValue) < widget.toolTipMargin) {
+        return widget.toolTipMargin;
       } else {
-        return leftPositionValue + widget.tooltipOffset.dx;
+        return leftPositionValue;
       }
     }
     return null;
@@ -209,7 +203,7 @@ class _ToolTipWidgetState extends State<ToolTipWidget>
         final rightPosition = widget.position!.getCenter() + (width * 0.5);
 
         return (rightPosition + width) > widget.screenSize.width
-            ? _kDefaultPaddingFromParent + widget.tooltipOffset.dx
+            ? widget.toolTipMargin
             : null;
       } else {
         return null;
@@ -225,7 +219,7 @@ class _ToolTipWidgetState extends State<ToolTipWidget>
     } else if (space < (widget.contentWidth! / 2)) {
       space = 16;
     }
-    return space + widget.tooltipOffset.dx;
+    return space;
   }
 
   double _getAlignmentX() {
@@ -349,11 +343,9 @@ class _ToolTipWidgetState extends State<ToolTipWidget>
         contentOrientation == TooltipPosition.bottom ? 1.0 : -1.0;
     isArrowUp = contentOffsetMultiplier == 1.0;
 
-    var contentY = isArrowUp
+    final contentY = isArrowUp
         ? widget.position!.getBottom() + (contentOffsetMultiplier * 3)
         : widget.position!.getTop() + (contentOffsetMultiplier * 3);
-
-    contentY = contentY + widget.tooltipOffset.dy;
 
     final num contentFractionalOffset =
         contentOffsetMultiplier.clamp(-1.0, 0.0);
@@ -563,16 +555,14 @@ class _ToolTipWidgetState extends State<ToolTipWidget>
   double? _getArrowLeft(double arrowWidth) {
     final left = _getLeft();
     if (left == null) return null;
-    return (widget.position!.getCenter() - (arrowWidth / 2) - left) +
-        widget.tooltipOffset.dx;
+    return (widget.position!.getCenter() - (arrowWidth / 2) - left);
   }
 
   double? _getArrowRight(double arrowWidth) {
     if (_getLeft() != null) return null;
     return (widget.screenSize.width - widget.position!.getCenter()) -
         (_getRight() ?? 0) -
-        (arrowWidth / 2) +
-        widget.tooltipOffset.dx;
+        (arrowWidth / 2);
   }
 }
 
