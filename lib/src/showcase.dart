@@ -27,6 +27,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'enum.dart';
+import 'extension.dart';
 import 'get_position.dart';
 import 'layout_overlays.dart';
 import 'shape_clipper.dart';
@@ -252,11 +253,10 @@ class Showcase extends StatefulWidget {
   /// Defaults to 7.
   final double toolTipSlideEndDistance;
 
-  /// Defines the margin for the tooltip.
-  /// Which is from 0 to [toolTipSlideEndDistance].
+  /// Defines the tooltip offset from the target widget.
   ///
-  /// Defaults to 14.
-  final double toolTipMargin;
+  /// Default to Offset.zero
+  final Offset tooltipOffset;
 
   const Showcase({
     required this.key,
@@ -304,7 +304,7 @@ class Showcase extends StatefulWidget {
     this.onBarrierClick,
     this.disableBarrierInteraction = false,
     this.toolTipSlideEndDistance = 7,
-    this.toolTipMargin = 14,
+    this.tooltipOffset = Offset.zero,
   })  : height = null,
         width = null,
         container = null,
@@ -346,6 +346,7 @@ class Showcase extends StatefulWidget {
     this.onBarrierClick,
     this.disableBarrierInteraction = false,
     this.toolTipSlideEndDistance = 7,
+    this.tooltipOffset = Offset.zero,
   })  : showArrow = false,
         onToolTipClick = null,
         scaleAnimationDuration = const Duration(milliseconds: 300),
@@ -366,7 +367,6 @@ class Showcase extends StatefulWidget {
         descriptionPadding = null,
         titleTextDirection = null,
         descriptionTextDirection = null,
-        toolTipMargin = 14,
         assert(overlayOpacity >= 0.0 && overlayOpacity <= 1.0,
             "overlay opacity must be between 0 and 1."),
         assert(onBarrierClick == null || disableBarrierInteraction == false,
@@ -435,7 +435,7 @@ class _ShowcaseState extends State<Showcase> {
   }
 
   void _scrollIntoView() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+    ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((timeStamp) async {
       setState(() => _isScrollRunning = true);
       await Scrollable.ensureVisible(
         widget.key.currentContext!,
@@ -471,16 +471,14 @@ class _ShowcaseState extends State<Showcase> {
   }
 
   void initRootWidget() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+    ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
       rootWidgetSize = showCaseWidgetState.rootWidgetSize;
       rootRenderObject = showCaseWidgetState.rootRenderObject;
     });
   }
 
   void recalculateRootWidgetSize() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+    ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
       final rootWidget =
           context.findRootAncestorStateOfType<State<WidgetsApp>>();
       rootRenderObject = rootWidget?.context.findRenderObject() as RenderBox?;
@@ -604,7 +602,6 @@ class _ShowcaseState extends State<Showcase> {
             onLongPress: widget.onTargetLongPress,
             shapeBorder: widget.targetShapeBorder,
             disableDefaultChildGestures: widget.disableDefaultTargetGestures,
-            targetPadding: widget.targetPadding,
           ),
           ToolTipWidget(
             position: position,
@@ -640,7 +637,7 @@ class _ShowcaseState extends State<Showcase> {
             titleTextDirection: widget.titleTextDirection,
             descriptionTextDirection: widget.descriptionTextDirection,
             toolTipSlideEndDistance: widget.toolTipSlideEndDistance,
-            toolTipMargin: widget.toolTipMargin,
+            tooltipOffset: widget.tooltipOffset,
           ),
         ],
       ],
@@ -657,25 +654,25 @@ class _TargetWidget extends StatelessWidget {
   final ShapeBorder shapeBorder;
   final BorderRadius? radius;
   final bool disableDefaultChildGestures;
-  final EdgeInsets targetPadding;
 
   const _TargetWidget({
+    Key? key,
     required this.offset,
     required this.size,
     required this.shapeBorder,
-    required this.targetPadding,
     this.onTap,
     this.radius,
     this.onDoubleTap,
     this.onLongPress,
     this.disableDefaultChildGestures = false,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: offset.dy - targetPadding.top,
-      left: offset.dx - targetPadding.left,
+      //TODO: Add target padding in major version upgrade
+      top: offset.dy,
+      left: offset.dx,
       child: disableDefaultChildGestures
           ? IgnorePointer(
               child: targetWidgetContent(),
@@ -689,11 +686,11 @@ class _TargetWidget extends StatelessWidget {
       onTap: onTap,
       onLongPress: onLongPress,
       onDoubleTap: onDoubleTap,
-      behavior: HitTestBehavior.translucent,
       child: Container(
-        height: size.height,
-        width: size.width,
-        margin: targetPadding,
+        //TODO: Add target padding in major version upgrade and
+        // remove default 16 padding from this widget
+        height: size.height + 16,
+        width: size.width + 16,
         decoration: ShapeDecoration(
           shape: radius != null
               ? RoundedRectangleBorder(borderRadius: radius!)
