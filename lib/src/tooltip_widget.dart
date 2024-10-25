@@ -90,6 +90,7 @@ class ToolTipWidget extends StatefulWidget {
     required this.scaleAnimationDuration,
     required this.scaleAnimationCurve,
     required this.toolTipMargin,
+    required this.tooltipOffset,
     this.scaleAnimationAlignment,
     this.isTooltipDismissed = false,
     this.tooltipPosition,
